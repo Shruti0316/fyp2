@@ -88,8 +88,12 @@ class TOP(object):
 
 def generate_instance(size, prize_type, max_length=2, num_depots=1):
 
-    loc = torch.FloatTensor(size, 2).uniform_(0, 1)
-    depot = torch.FloatTensor(2).uniform_(0, 1)
+    loc = torch.FloatTensor(size, 3).uniform_(0, 1)
+    depot = torch.FloatTensor(3).uniform_(0, 1)
+
+    # Initialize obstacle indices
+    num_obstacles = int(0.2 * size)
+    obstacle_indices = np.random.choice(size, size=num_obstacles, replace=False)
 
     # Methods taken from Fischetti et al. 1998
     if prize_type == 'const':
@@ -101,12 +105,15 @@ def generate_instance(size, prize_type, max_length=2, num_depots=1):
         prize_ = (depot[None, :] - loc).norm(p=2, dim=-1)
         prize = (1 + (prize_ / prize_.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.
 
+    for idx in obstacle_indices:
+        prize[idx] = -100
+
     # Output dataset
     dictionary = {'loc': loc, 'prize': prize, 'depot': depot, 'max_length': torch.tensor(max_length)}
 
     # End depot is different from start depot
     if num_depots == 2:
-        depot2 = torch.FloatTensor(2).uniform_(0, 1)
+        depot2 = torch.FloatTensor(3).uniform_(0, 1)
         dictionary['depot2'] = depot2
     return dictionary
 

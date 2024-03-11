@@ -84,10 +84,10 @@ class AttentionModel(nn.Module):
         step_context_dim = embedding_dim + 1
 
         # Node dimension
-        node_dim = 3  # x, y, prize
+        node_dim = 4  # x, y, prize
 
         # Special embedding projection for depot node
-        self.init_embed_depot = nn.Linear(2, embedding_dim)
+        self.init_embed_depot = nn.Linear(3, embedding_dim)
 
         # Encoder embeddings
         self.init_embed = nn.Linear(node_dim, embedding_dim)

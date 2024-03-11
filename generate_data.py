@@ -10,8 +10,8 @@ from utils.data_utils import set_seed
 def generate_top_data(dataset_size, op_size, prize_type='const', max_length=2, num_depots=1):
 
     # Coordinates
-    depot = np.random.uniform(size=(dataset_size, 2))
-    loc = np.random.uniform(size=(dataset_size, op_size, 2))
+    depot = np.random.uniform(size=(dataset_size, 3))
+    loc = np.random.uniform(size=(dataset_size, op_size, 3))
 
     # Methods taken from Fischetti et al. 1998
     if prize_type == 'const':

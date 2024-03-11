@@ -142,11 +142,13 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
     depot = inputs['depot']
     plt.scatter(depot[0], depot[1], c='b')
     depot2 = inputs['depot2'] if 'depot2' in inputs else depot
-    plt.scatter(depot2[0], depot2[1], c='r')  # (red circle)
+    plt.scatter(depot2[0], depot2[1], c='b')  # (blue circle)
 
     # Nodes (black circles)
     loc = inputs['loc']
-    plt.scatter(loc[..., 0], loc[..., 1], c='k')
+    prizes = inputs['prize']
+    plt.scatter(loc[prizes<0][..., 0], loc[prizes<0][...,1], c='r') #Obstacles
+    plt.scatter(loc[prizes>0][..., 0], loc[prizes>0][..., 1], c='k')
     loc = np.concatenate(([depot], loc, [depot2]), axis=0)
 
     # Prizes (add prize 0 to depots)
@@ -182,6 +184,7 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
         # Add TOP prize to the title (if problem is TOP)
         title += ' / {:.3g} | Prize = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes))
     ax.set_title(title)
+    fig.savefig('/content/top_transformer/images/solution.png', dpi=150)
     plt.show()
 
 

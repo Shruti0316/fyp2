@@ -39,8 +39,8 @@ def get_options(args=None):
     parser.add_argument('--data_distribution', type=str, default='const',
                         help="Data distribution to use during training, defaults and options depend on problem.")
     parser.add_argument('--graph_size', type=int, default=20, help="The size of the problem graph")
-    parser.add_argument('--epoch_size', type=int, default=1280000, help="Number of instances per epoch during training")
-    parser.add_argument('--val_size', type=int, default=10000,
+    parser.add_argument('--epoch_size', type=int, default=5120, help="Number of instances per epoch during training")
+    parser.add_argument('--val_size', type=int, default=10,
                         help="Number of instances used for reporting validation performance")
     parser.add_argument('--val_dataset', type=str, default=None, help='Dataset file to use for validation')
 
