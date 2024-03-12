@@ -13,18 +13,6 @@ from nets.gpn import GPN
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
 
-class Arrow3D(FancyArrowPatch):
-    def __init__(self, xs, ys, zs, *args, **kwargs):
-        super().__init__((0,0), (0,0), *args, **kwargs)
-        self._verts3d = xs, ys, zs
-
-    def do_3d_projection(self, renderer=None):
-        xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
-        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
-
-        return np.min(zs)
-
 def arguments(args=None):
     parser = argparse.ArgumentParser(description="Visualize predictions made by some algorithms")
     parser.add_argument('--seed', type=int, default=0, help='Random seed to use')
@@ -88,9 +76,10 @@ def add_depots(tours, num_agents, graph_size, node_parameter):
         else:
             tours[k] = np.array([0, graph_size + 1])
 
-        parameter_values_array = [node_parameter[node] for node in tours[k] if node != 0 and node != graph_size + 1]
+        parameter_values_array = [node_parameter[node-1] for node in tours[k] if node != 0 and node != graph_size + 1]
 
         print('Agent {}: '.format(k + 1), tours[k])
+        print(parameter_values_array)
         temp = sum(parameter_values_array)
         value += temp
 
@@ -101,7 +90,7 @@ def parameter_graph(x_values,y_values,parameter):
 
   plt.xlabel('Iteration')
   plt.ylabel(parameter)
-  plt.title('{} Graph'.format(parameter))
+  plt.title('{}'.format(parameter))
 
   plt.savefig("graphs/{}.jpg".format(parameter))
   plt.show()
@@ -113,8 +102,8 @@ def combined_parameter_graph(x_values,y_values,parameters):
     
   # Naming the x-axis, y-axis and the whole graph 
   plt.xlabel("Iteration") 
-  plt.ylabel("Parameters value") 
-  plt.title("Paramete Graph Analysis") 
+  plt.ylabel("Parameter value") 
+  plt.title("Parameter Graph Analysis") 
     
   plt.legend(loc="lower right") 
   
@@ -131,16 +120,15 @@ def main(opts):
     dataset = problem.make_dataset(size=opts.graph_size, num_samples=1, distribution=opts.data_distribution,
                                    max_length=opts.max_length, num_agents=opts.num_agents, num_depots=opts.num_depots)
     
-    # specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70, 80, 99]
-    specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70]
+    specific_epochs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
+    # specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70]
 
-    # parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead','no. of visited nodes']
-    parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead']
+    parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead', 'prize']
     all_parameters_value_array = list()
     # Loop over each epoch
     for parameter in parameters: 
       parameter_vals_array = list()
-      print("fro  ",parameter)
+      print("for  ",parameter)
       for epoch in specific_epochs:
           epoch_file = f"epoch-{epoch}.pt"
           epoch_path = os.path.join(opts.model, epoch_file)
