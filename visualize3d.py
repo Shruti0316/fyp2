@@ -10,7 +10,20 @@ from nets.pointer_network import PointerNetwork
 from utils.functions import load_problem
 from utils import load_model
 from nets.gpn import GPN
+from matplotlib.patches import FancyArrowPatch
+from mpl_toolkits.mplot3d import proj3d
 
+class Arrow3D(FancyArrowPatch):
+    def __init__(self, xs, ys, zs, *args, **kwargs):
+        super().__init__((0,0), (0,0), *args, **kwargs)
+        self._verts3d = xs, ys, zs
+
+    def do_3d_projection(self, renderer=None):
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        self.set_positions((xs[0],ys[0]),(xs[1],ys[1]))
+
+        return np.min(zs)
 
 def arguments(args=None):
     parser = argparse.ArgumentParser(description="Visualize predictions made by some algorithms")
@@ -141,15 +154,17 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
 
     # Depot (blue circle)
     depot = inputs['depot']
-    ax.scatter(depot[0], depot[1], depot[2], c='b')
+    ax.scatter(depot[0], depot[1], depot[2], c='b', label='Source')
+    if 'depot2' in inputs:
+        depot2 = inputs['depot2']
+        ax.scatter(depot2[0], depot2[1], depot2[2], c='orange', label='Destination') 
     depot2 = inputs['depot2'] if 'depot2' in inputs else depot
-    ax.scatter(depot2[0], depot2[1], depot2[2], c='b')  # (blue circle)
 
     # Nodes (black circles)
     loc = inputs['loc']
     prizes = inputs['prize']
-    plt.scatter(loc[prizes<0][..., 0], loc[prizes<0][...,1], loc[prizes < 0][..., 2], c='r') #Obstacles
-    plt.scatter(loc[prizes>0][..., 0], loc[prizes>0][..., 1], loc[prizes > 0][..., 2], c='k')
+    ax.scatter(loc[prizes<0][..., 0], loc[prizes<0][...,1], loc[prizes < 0][..., 2], c='r', label='Obstacles') #Obstacles
+    ax.scatter(loc[prizes>0][..., 0], loc[prizes>0][..., 1], loc[prizes > 0][..., 2], c='k', label ='Prize Nodes')
     loc = np.concatenate(([depot], loc, [depot2]), axis=0)
 
     # Prizes (add prize 0 to depots)
@@ -170,24 +185,24 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
 
         # Draw arrows
         for i in range(1, tour.shape[0]):
-            dx = loc[tour[i], 0] - loc[tour[i - 1], 0]
-            dy = loc[tour[i], 1] - loc[tour[i - 1], 1]
-            dz = loc[tour[i], 2] - loc[tour[i - 1], 2]
-            ax.quiver(loc[tour[i - 1], 0], loc[tour[i - 1], 1], loc[tour[i - 1], 2], dx, dy, dz, color=colors[k])
-            # plt.arrow(loc[tour[i - 1], 0], loc[tour[i - 1], 1], dx, dy, head_width=.025, fc=colors[k], ec=None,
-            #           length_includes_head=True)
-
+            # ax.plot([loc[tour[i - 1], 0], loc[tour[i], 0]], [loc[tour[i - 1], 1], loc[tour[i], 1]], [loc[tour[i - 1], 2], loc[tour[i], 2]],  color=colors[k])
+            arrow_prop_dict = dict(mutation_scale=10, arrowstyle='-|>', color=colors[k], shrinkA=0, shrinkB=0)
+            a = Arrow3D([loc[tour[i - 1], 0], loc[tour[i], 0]], [loc[tour[i - 1], 1], loc[tour[i], 1]], 
+                [loc[tour[i - 1], 2], loc[tour[i], 2]], **arrow_prop_dict)
+            ax.add_artist(a)
+    
     # Set title
     # title = 'Agents = {} |'.format(num_agents)
     # title += ' Max length = {:.3g}'.format(length)
-    title = problem.upper()
-    title += ' ' + str(num_agents) + ' (' + data_dist.lower() + ')' if len(data_dist) > 0 else ''
-    title += ' - {:s}: Max length = {:.3g}'.format(model_name, length)
+    title = str(num_agents) + ' UAVs'
+    title += ' - Time taken = {:.3g}'.format(length)
     if problem == 'top':
         # Add TOP prize to the title (if problem is TOP)
-        title += ' / {:.3g} | Prize = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes))
+        title += ' / {:.3g} | Reward = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes[prizes>0]))
     ax.set_title(title)
-    fig.savefig('/content/top_transformer/images/solution.png', dpi=150)
+    fig.savefig('images/solution.png', dpi=150)
+    # ax.legend(loc='center right', bbox_to_anchor=(1.5, 0.5))
+    ax.legend()
     plt.show()
 
 

@@ -1,5 +1,5 @@
 # Solving the Team Orienteering Problem with Transformers
-![](images/python-3.8.svg)
+![](images/python3-3.8.svg)
 ![](images/torch-1.13.1.svg)
 ![](images/cuda-11.7.svg)
 ![](images/cudnn-8.5.svg)
@@ -24,7 +24,7 @@ useful for your work, please cite our paper:
 
 ## Dependencies
 
-* Python >= 3.8
+* python3 >= 3.8
 * NumPy
 * SciPy
 * Numba
@@ -37,13 +37,13 @@ useful for your work, please cite our paper:
 
 First, it is necessary to create test and validation sets:
 ```bash
-python generate_data.py --name test --seed 1234 --graph_sizes 20 20 20 35 35 35 50 50 50 75 75 75 100 100 100 --max_length 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5
-python generate_data.py --name val --seed 4321 --graph_sizes 20 20 20 35 35 35 50 50 50 75 75 75 100 100 100 --max_length 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5 1.5 2 2.5
+python3 generate_data.py --name test --seed 1234 --graph_sizes 20 --max_length 2
+python3 generate_data.py --name val --seed 4321 --graph_sizes 20 --max_length 2
 ```
 
 To train a Transformer model (`attention`) use:
 ```bash
-python run.py --problem top --model attention --val_dataset data/1depots/const/20/val_seed4321_L2.0.pkl --graph_size 20 --data_distribution const --num_agents 2 --max_length 2.0 --baseline rollout
+python3 run.py --problem top --model attention --val_dataset data/1depots/const/20/val_seed4321_L2.0.pkl --graph_size 20 --data_distribution const --num_agents 2 --max_length 2.0 --baseline rollout
 ```
 
 and change the environment conditions (number of agents, graph size, max length, reward distribution...)
@@ -65,28 +65,28 @@ unzip pretrained.zip
 
 Evaluate your trained models with:
 ```bash
-python eval.py data/1depots/const/20/test_seed1234_L2.0.pkl --model outputs/top_const20/attention_... --num_agents 2
+python3 eval.py data/1depots/const/20/test_seed1234_L2.0.pkl --model outputs/top_const20/attention_... --num_agents 2
 ```
 If the epoch is not specified, by default the last one in the folder will be used.
 
 Baselines algorithms like Ant Colony Optimization (`aco`), Particle Swarm Optimization (`pso`), or Genetic Algorithm
 (`opga`) can be executed as follows:
 ```bash
-python -m problems.op.eval_baselines --method aco --multiprocessing True --datasets data/1depots/const/20/test_seed1234_L2.pkl
+python3 -m problems.op.eval_baselines --method aco --multiprocessing True --datasets data/1depots/const/20/test_seed1234_L2.pkl
 ```
 
 Finally, you can visualize an example using:
 ```bash
-python visualize.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model outputs/top_const20/attention_...
-python visualize.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model aco
+python33 visualize3d.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model outputs/top_const20/attention_rollout_2agents_20240312T101240
+python3 visualize.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model aco
 ```
 
 ### Other options and help
 ```bash
-python run.py -h
-python eval.py -h
-python -m problems.op.eval_baselines -h
-python visualize.py -h
+python3 run.py -h
+python3 eval.py -h
+python3 -m problems.op.eval_baselines -h
+python3 visualize.py -h
 ```
 
 ## Acknowledgements

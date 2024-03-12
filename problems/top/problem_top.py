@@ -85,6 +85,8 @@ class TOP(object):
 
         return beam_search(state, beam_size, propose_expansions)
 
+def normalize(tensor):
+    return (tensor - tensor.min()) / (tensor.max() - tensor.min())
 
 def generate_instance(size, prize_type, max_length=2, num_depots=1):
 
@@ -92,9 +94,22 @@ def generate_instance(size, prize_type, max_length=2, num_depots=1):
     depot = torch.FloatTensor(3).uniform_(0, 1)
 
     # Initialize obstacle indices
-    num_obstacles = int(0.2 * size)
+    num_obstacles = int(0.4 * size)
     obstacle_indices = np.random.choice(size, size=num_obstacles, replace=False)
 
+    energy = normalize(torch.FloatTensor(size).uniform_(1000, 5000)) #minimize #Joules
+    delay = normalize(torch.FloatTensor(size).uniform_(10,100)) #minimize #ms
+    network_lifetime = normalize(torch.FloatTensor(size).uniform_(1,10)) #max #hours
+    pdr = normalize(torch.FloatTensor(size).uniform_(90,99)) #max packet delivery ratio #%
+    throughput = normalize(torch.FloatTensor(size).uniform_(1,10)) #max #mbps
+    connectivity = normalize(torch.FloatTensor(size).uniform_(90,100)) #max #%
+    routing_overhead = normalize(torch.FloatTensor(size).uniform_(1,10)) #minimize #%
+    # print(size)
+    
+    reward = torch.zeros(size)
+    for i in range(size):
+        reward[i] = 0.25 * (1-energy[i]) + 0.14 * (1-delay[i]) + 0.18 * network_lifetime[i] + 0.11 * pdr[i] + 0.12 * throughput[i] + 0.1 * connectivity[i] + 0.1 * (1-routing_overhead[i])
+    
     # Methods taken from Fischetti et al. 1998
     if prize_type == 'const':
         prize = torch.ones(size)
@@ -104,6 +119,9 @@ def generate_instance(size, prize_type, max_length=2, num_depots=1):
         assert prize_type == 'dist'
         prize_ = (depot[None, :] - loc).norm(p=2, dim=-1)
         prize = (1 + (prize_ / prize_.max(dim=-1, keepdim=True)[0] * 99).int()).float() / 100.
+
+    for j in range(size):
+        prize[j] += reward[j] 
 
     for idx in obstacle_indices:
         prize[idx] = -100

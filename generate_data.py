@@ -33,7 +33,7 @@ def generate_top_data(dataset_size, op_size, prize_type='const', max_length=2, n
 
     # End depot different from start depot
     if num_depots == 2:
-        depot2 = np.random.uniform(size=(dataset_size, 2))
+        depot2 = np.random.uniform(size=(dataset_size, 3))
         output.append(depot2)
 
     return list(zip(

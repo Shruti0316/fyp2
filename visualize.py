@@ -11,7 +11,6 @@ from utils.functions import load_problem
 from utils import load_model
 from nets.gpn import GPN
 
-
 def arguments(args=None):
     parser = argparse.ArgumentParser(description="Visualize predictions made by some algorithms")
     parser.add_argument('--seed', type=int, default=0, help='Random seed to use')
@@ -182,9 +181,9 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
     title += ' - {:s}: Max length = {:.3g}'.format(model_name, length)
     if problem == 'top':
         # Add TOP prize to the title (if problem is TOP)
-        title += ' / {:.3g} | Prize = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes))
+        title += ' / {:.3g} | Prize = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes[prizes>0]))
     ax.set_title(title)
-    fig.savefig('/content/top_transformer/images/solution.png', dpi=150)
+    fig.savefig('images/solution.png', dpi=150)
     plt.show()
 
 
