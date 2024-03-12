@@ -12,6 +12,13 @@ def generate_top_data(dataset_size, op_size, prize_type='const', max_length=2, n
     # Coordinates
     depot = np.random.uniform(size=(dataset_size, 3))
     loc = np.random.uniform(size=(dataset_size, op_size, 3))
+    energy = np.random.uniform(size=(dataset_size, op_size))
+    delay = np.random.uniform(size=(dataset_size, op_size))
+    network_lifetime = np.random.uniform(size=(dataset_size, op_size))
+    pdr = np.random.uniform(size=(dataset_size, op_size))
+    throughput = np.random.uniform(size=(dataset_size, op_size))
+    connectivity = np.random.uniform(size=(dataset_size, op_size))
+    routing_overhead = np.random.uniform(size=(dataset_size, op_size))
 
     # Methods taken from Fischetti et al. 1998
     if prize_type == 'const':
@@ -29,7 +36,7 @@ def generate_top_data(dataset_size, op_size, prize_type='const', max_length=2, n
     max_length = np.full(dataset_size, max_length)  # Capacity, same for whole dataset
 
     # Output
-    output = [depot, loc, prize, max_length]
+    output = [depot, loc, prize, max_length, energy, delay, network_lifetime, pdr, throughput, connectivity, routing_overhead]
 
     # End depot different from start depot
     if num_depots == 2:

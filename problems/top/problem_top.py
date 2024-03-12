@@ -127,7 +127,9 @@ def generate_instance(size, prize_type, max_length=2, num_depots=1):
         prize[idx] = -100
 
     # Output dataset
-    dictionary = {'loc': loc, 'prize': prize, 'depot': depot, 'max_length': torch.tensor(max_length)}
+    dictionary = {'loc': loc, 'prize': prize, 'depot': depot, 'max_length': torch.tensor(max_length), 'energy': energy, 'delay': delay, 
+                  'network_lifetime': network_lifetime, 'pdr': pdr, 'connectivity': connectivity, 'routing_overhead': routing_overhead,
+                  'throughput': throughput}
 
     # End depot is different from start depot
     if num_depots == 2:
@@ -155,9 +157,16 @@ class TOPDataset(Dataset):
                             'loc': torch.FloatTensor(loc),
                             'prize': torch.FloatTensor(prize),
                             'depot': torch.FloatTensor(depot),
-                            'max_length': torch.tensor(length)
+                            'max_length': torch.tensor(length),
+                            'energy': torch.FloatTensor(energy),
+                            'delay': torch.FloatTensor(delay), 
+                            'network_lifetime': torch.FloatTensor(network_lifetime),
+                            'pdr': torch.FloatTensor(pdr), 
+                            'connectivity': torch.FloatTensor(connectivity), 
+                            'routing_overhead': torch.FloatTensor(routing_overhead),
+                            'throughput': torch.FloatTensor(throughput)
                         }
-                        for depot, loc, prize, length in tqdm(data[offset:offset + num_samples])
+                        for depot, loc, prize, length, energy, delay, network_lifetime, pdr, connectivity, routing_overhead, throughput in tqdm(data[offset:offset + num_samples])
                     ]
                 else:
                     assert num_depots == 2, 'Number of depots has to be either 1 or 2.'
@@ -167,9 +176,16 @@ class TOPDataset(Dataset):
                             'prize': torch.FloatTensor(prize),
                             'depot': torch.FloatTensor(depot),
                             'max_length': torch.tensor(length),
-                            'depot2': torch.FloatTensor(depot2)
+                            'depot2': torch.FloatTensor(depot2),
+                            'energy': torch.FloatTensor(energy),
+                            'delay': torch.FloatTensor(delay), 
+                            'network_lifetime': torch.FloatTensor(network_lifetime),
+                            'pdr': torch.FloatTensor(pdr), 
+                            'connectivity': torch.FloatTensor(connectivity), 
+                            'routing_overhead': torch.FloatTensor(routing_overhead),
+                            'throughput': torch.FloatTensor(throughput)
                         }
-                        for depot, loc, prize, length, depot2 in tqdm(data[offset:offset + num_samples])
+                        for depot, loc, prize, length, depot2, energy,  delay, network_lifetime, pdr, connectivity, routing_overhead, throughput in tqdm(data[offset:offset + num_samples])
                     ]
         else:
             print('Generating dataset...')
