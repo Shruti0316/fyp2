@@ -75,8 +75,9 @@ def reshape_tours(tours, num_agents, end_ids=0):
     return new_tours
 
 
-def add_depots(tours, num_agents, graph_size, node_energy):
+def add_depots(tours, num_agents, graph_size, node_parameter):
     tours = list(tours)
+    value = 0
     for k in range(num_agents):
         tours[k] = np.array(tours[k])
         if len(tours[k]) > 0:
@@ -87,13 +88,38 @@ def add_depots(tours, num_agents, graph_size, node_energy):
         else:
             tours[k] = np.array([0, graph_size + 1])
 
-        energies = [node_energy[node] for node in tours[k] if node != 0 and node != graph_size + 1]
+        parameter_values_array = [node_parameter[node] for node in tours[k] if node != 0 and node != graph_size + 1]
 
         print('Agent {}: '.format(k + 1), tours[k])
-        print(energies)
+        temp = sum(parameter_values_array)
+        value += temp
 
-    return tours
+    return tours,value
 
+def parameter_graph(x_values,y_values,parameter):
+  plt.plot(x_values, y_values)
+
+  plt.xlabel('Iteration')
+  plt.ylabel(parameter)
+  plt.title('{} Graph'.format(parameter))
+
+  plt.savefig("graphs/{}.jpg".format(parameter))
+  plt.show()
+
+def combined_parameter_graph(x_values,y_values,parameters):
+  
+  for i in range (7):
+    plt.plot(x_values, y_values[i], label=parameters[i]) 
+    
+  # Naming the x-axis, y-axis and the whole graph 
+  plt.xlabel("Iteration") 
+  plt.ylabel("Parameters value") 
+  plt.title("Paramete Graph Analysis") 
+    
+  plt.legend(loc="lower right") 
+  
+  plt.savefig("graphs/combined.jpg")
+  plt.show() 
 
 def main(opts):
 
@@ -105,43 +131,55 @@ def main(opts):
     dataset = problem.make_dataset(size=opts.graph_size, num_samples=1, distribution=opts.data_distribution,
                                    max_length=opts.max_length, num_agents=opts.num_agents, num_depots=opts.num_depots)
     
-    specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70, 80, 99]
-    
+    # specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70, 80, 99]
+    specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70]
+
+    # parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead','no. of visited nodes']
+    parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead']
+    all_parameters_value_array = list()
     # Loop over each epoch
-    for epoch in specific_epochs:
-        epoch_file = f"epoch-{epoch}.pt"
-        epoch_path = os.path.join(opts.model, epoch_file)
-    
-        # Set the device
-        device = torch.device("cuda:0" if opts.use_cuda else "cpu")
-        
-        if os.path.exists(epoch_path):
-            # Load model (Transformer, PN, GPN) for evaluation on the chosen device
-            model, _ = load_model(epoch_path, num_agents=opts.num_agents)
-            model.set_decode_type('greedy')
-            model.num_depots = opts.num_depots
-            model.num_agents = opts.num_agents
-            model.eval()  # Put in evaluation mode to not track gradients
-            model.to(device)
+    for parameter in parameters: 
+      parameter_vals_array = list()
+      print("fro  ",parameter)
+      for epoch in specific_epochs:
+          epoch_file = f"epoch-{epoch}.pt"
+          epoch_path = os.path.join(opts.model, epoch_file)
+      
+          # Set the device
+          device = torch.device("cuda:0" if opts.use_cuda else "cpu")
+          
+          if os.path.exists(epoch_path):
+              # Load model (Transformer, PN, GPN) for evaluation on the chosen device
+              model, _ = load_model(epoch_path, num_agents=opts.num_agents)
+              model.set_decode_type('greedy')
+              model.num_depots = opts.num_depots
+              model.num_agents = opts.num_agents
+              model.eval()  # Put in evaluation mode to not track gradients
+              model.to(device)
 
-            # Calculate tour
-            inputs = dataset.data[0]
-            for k, v in inputs.items():
-                inputs[k] = torch.tensor(v).unsqueeze(0).to(device)
-            _, _, tours = model(inputs, return_pi=True)
+              # Calculate tour
+              inputs = dataset.data[0]
+              for k, v in inputs.items():
+                  inputs[k] = torch.tensor(v).unsqueeze(0).to(device)
+              _, _, tours = model(inputs, return_pi=True)
 
-            # Torch tensors to numpy
-            tours = tours.cpu().detach().numpy().squeeze()
-            for k, v in inputs.items():
-                inputs[k] = v.cpu().detach().numpy().squeeze()
+              # Torch tensors to numpy
+              tours = tours.cpu().detach().numpy().squeeze()
+              for k, v in inputs.items():
+                  inputs[k] = v.cpu().detach().numpy().squeeze()
 
-            # Reshape tours list
-            tours = reshape_tours(tours, opts.num_agents, end_ids=inputs['loc'].shape[0] + 1)
+              # Reshape tours list
+              tours = reshape_tours(tours, opts.num_agents, end_ids=inputs['loc'].shape[0] + 1)
 
-            # Add depots and print tours and analyse parameters
-            tours = add_depots(tours, opts.num_agents, opts.graph_size, inputs['energy'])
-        else:
-            print(f"Epoch file '{epoch_file}' does not exist.")
+              # Add depots and print tours and analyse parameters
+              tours_energy,value = add_depots(tours, opts.num_agents, opts.graph_size, inputs[parameter])
+              parameter_vals_array.append(value)
+          else:
+              print(f"Epoch file '{epoch_file}' does not exist.")
+      #call function to plot
+      all_parameters_value_array.append(parameter_vals_array)
+      parameter_graph(specific_epochs, parameter_vals_array,parameter)
+    combined_parameter_graph(specific_epochs,all_parameters_value_array,parameters)
 
 if __name__ == "__main__":
     main(arguments())
