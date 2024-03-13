@@ -142,7 +142,7 @@ class PointerNetwork(nn.Module):
         self.hidden_dim = hidden_dim
 
         # Input dimension
-        self.input_dim = 3 + num_agents  # x, y, prize, remaining lengths
+        self.input_dim = 4 + num_agents  # x, y, prize, remaining lengths
 
         # Initial embedding projection
         std = 1. / math.sqrt(embedding_dim)
@@ -211,7 +211,7 @@ class PointerNetwork(nn.Module):
                 (
                         state.get_remaining_length(k) -
                         (
-                                inputs['depot'].tile(graph_size).reshape(-1, graph_size, 2) - loc
+                                inputs['depot'].tile(graph_size).reshape(-1, graph_size, 3) - loc
                         ).norm(p=2, dim=-1)
                 )[:, :, None] / inputs['max_length'].tile(graph_size).reshape(-1, graph_size, 1),
             )
@@ -332,7 +332,7 @@ class PointerNetwork(nn.Module):
                     (
                             state.get_remaining_length(k) -
                             (
-                                    current_coords.tile(graph_size).reshape(-1, graph_size, 2) - loc
+                                    current_coords.tile(graph_size).reshape(-1, graph_size, 3) - loc
                             ).norm(p=2, dim=-1)
                     )[:, :, None] / inputs['max_length'].tile(graph_size).reshape(-1, graph_size, 1),
                 )
