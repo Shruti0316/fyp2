@@ -44,6 +44,7 @@ def arguments(args=None):
                         "means that the start and end depot are the same. num_depots=2 means that they are different")
     parser.add_argument('--return2depot', type=str2bool, default=True, help="True for constraint of returning to depot")
     parser.add_argument('--max_length', type=float, default=2, help="Normalized time limit to solve the problem")
+    parser.add_argument('--obstacles_percentage', default='medium', help="Percentage of obstacle nodes in the region. Options are low, medium or high)")
 
     # CPU / GPU
     parser.add_argument('--use_cuda', type=str2bool, default=True, help="True to use CUDA")
@@ -200,7 +201,7 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
         # Add TOP prize to the title (if problem is TOP)
         title += ' / {:.3g} | Reward = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes[prizes>0]))
     ax.set_title(title)
-    fig.savefig('images/solution.png', dpi=150)
+    fig.savefig('images/{}/low_obstacle/solution.png'.format(model_name), dpi=150)
     # ax.legend(loc='center right', bbox_to_anchor=(1.5, 0.5))
     ax.legend()
     plt.show()
@@ -265,12 +266,12 @@ def main(opts):
         model.eval()  # Put in evaluation mode to not track gradients
         model.to(device)
         if isinstance(model, AttentionModel):
-            model_name = 'Transformer'
+            model_name = 'attention'
         elif isinstance(model, PointerNetwork):
-            model_name = 'Pointer'
+            model_name = 'pointer'
         else:
             assert isinstance(model, GPN), 'Model should be an instance of AttentionModel, PointerNetwork or GPN'
-            model_name = 'GPN'
+            model_name = 'gpn'
 
         # Calculate tour
         for k, v in inputs.items():

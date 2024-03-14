@@ -3,6 +3,7 @@ import torch
 import argparse
 import numpy as np
 from matplotlib import pyplot as plt
+import json
 
 from utils.data_utils import set_seed, str2bool, assign_colors
 from nets.attention_model import AttentionModel
@@ -32,6 +33,8 @@ def arguments(args=None):
                         "means that the start and end depot are the same. num_depots=2 means that they are different")
     parser.add_argument('--return2depot', type=str2bool, default=True, help="True for constraint of returning to depot")
     parser.add_argument('--max_length', type=float, default=2, help="Normalized time limit to solve the problem")
+    parser.add_argument('--obstacle_percentage', default='medium', help="Percentage of obstacle nodes in the region. Options are low, medium or high)")
+
 
     # CPU / GPU
     parser.add_argument('--use_cuda', type=str2bool, default=True, help="True to use CUDA")
@@ -85,33 +88,33 @@ def add_depots(tours, num_agents, graph_size, node_parameter):
 
     return tours,value
 
-def parameter_graph(x_values,y_values,parameter):
-  plt.plot(x_values, y_values)
+def parameter_graph(x_values,y_values,parameter,model_name,obstacle_percentage):
+  plt.plot(x_values, y_values,marker='o')
 
-  plt.xlabel('Iteration')
+  plt.xlabel('No. of Epochs')
   plt.ylabel(parameter)
   plt.title('{}'.format(parameter))
 
-  plt.savefig("graphs/{}.jpg".format(parameter))
+  plt.savefig("images/{}/{}/{}.jpg".format(model_name,obstacle_percentage,parameter))
   plt.show()
 
-def combined_parameter_graph(x_values,y_values,parameters):
+def combined_parameter_graph(x_values,y_values,parameters,model_name,obstacle_percentage):
   
   for i in range (7):
-    plt.plot(x_values, y_values[i], label=parameters[i]) 
+    plt.plot(x_values, y_values[i], marker='o', label=parameters[i]) 
     
   # Naming the x-axis, y-axis and the whole graph 
-  plt.xlabel("Iteration") 
+  plt.xlabel("No. of Epochs") 
   plt.ylabel("Parameter value") 
   plt.title("Parameter Graph Analysis") 
     
   plt.legend(loc="lower right") 
   
-  plt.savefig("graphs/combined.jpg")
+  plt.savefig("images/{}/{}/combined.jpg".format(model_name,obstacle_percentage))
   plt.show() 
 
 def main(opts):
-
+    print(opts.model.split("/")[-1].split("_")[0])
     # Set seed for reproducibility
     set_seed(opts.seed)
 
@@ -121,9 +124,8 @@ def main(opts):
                                    max_length=opts.max_length, num_agents=opts.num_agents, num_depots=opts.num_depots)
     
     specific_epochs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 99]
-    # specific_epochs = [1, 10, 20, 30, 40, 50, 60, 70]
-
     parameters = ['energy','delay','network_lifetime','pdr','throughput','connectivity','routing_overhead', 'prize']
+
     all_parameters_value_array = list()
     # Loop over each epoch
     for parameter in parameters: 
@@ -164,10 +166,17 @@ def main(opts):
               parameter_vals_array.append(value)
           else:
               print(f"Epoch file '{epoch_file}' does not exist.")
+              #raise AssertionError("Run for all epochs")
+
       #call function to plot
       all_parameters_value_array.append(parameter_vals_array)
-      parameter_graph(specific_epochs, parameter_vals_array,parameter)
-    combined_parameter_graph(specific_epochs,all_parameters_value_array,parameters)
+      
+      model_name = opts.model.split("/")[-1].split("_")[0]
+      with open("graph_data/{}.json".format(model_name), "w") as file:
+        json.dump(all_parameters_value_array, file)
+
+      parameter_graph(specific_epochs, parameter_vals_array,parameter,model_name,opts.obstacle_percentage)
+    combined_parameter_graph(specific_epochs,all_parameters_value_array,parameters,model_name)
 
 if __name__ == "__main__":
     main(arguments())

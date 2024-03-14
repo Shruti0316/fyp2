@@ -33,6 +33,7 @@ def get_options(args=None):
     parser.add_argument('--num_agents', type=int, default=1, help="Number of agents")
     parser.add_argument('--num_depots', type=int, default=1, help="Number of depots. Options are 1 or 2. num_depots=1"
                         "means that the start and end depot are the same. num_depots=2 means that they are different")
+    parser.add_argument('--obstacles_percentage', default='Medium', help="Percentage of obstacle nodes in the region. Options are Low, Medium or High)")
 
     # Data
     parser.add_argument('--max_length', type=float, default=2, help="Normalized time limit to solve the problem")
