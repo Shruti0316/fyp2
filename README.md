@@ -79,6 +79,8 @@ Finally, you can visualize an example using:
 ```bash
 python33 visualize3d.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model outputs/top_const20/attention_rollout_2agents_20240312T101240
 python3 visualize.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model aco
+
+python3 analysis.py --graph_size 20 --num_agents 2 --max_length 2 --data_distribution const --model outputs/top_const20/attention_rollout_2agents_20240318T234600
 ```
 
 ### Other options and help

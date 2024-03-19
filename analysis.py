@@ -33,7 +33,7 @@ def arguments(args=None):
                         "means that the start and end depot are the same. num_depots=2 means that they are different")
     parser.add_argument('--return2depot', type=str2bool, default=True, help="True for constraint of returning to depot")
     parser.add_argument('--max_length', type=float, default=2, help="Normalized time limit to solve the problem")
-    parser.add_argument('--obstacle_percentage', default='medium', help="Percentage of obstacle nodes in the region. Options are low, medium or high)")
+    parser.add_argument('--obstacle_percentage', default='low', help="Percentage of obstacle nodes in the region. Options are low, medium or high)")
 
 
     # CPU / GPU
@@ -98,20 +98,20 @@ def parameter_graph(x_values,y_values,parameter,model_name,obstacle_percentage):
   plt.savefig("images/{}/{}/{}.jpg".format(model_name,obstacle_percentage,parameter))
   plt.show()
 
-def combined_parameter_graph(x_values,y_values,parameters,model_name,obstacle_percentage):
+# def combined_parameter_graph(x_values,y_values,parameters,model_name,obstacle_percentage):
   
-  for i in range (7):
-    plt.plot(x_values, y_values[i], marker='o', label=parameters[i]) 
+#   for i in range (7):
+#     plt.plot(x_values, y_values[i], marker='o', label=parameters[i]) 
     
-  # Naming the x-axis, y-axis and the whole graph 
-  plt.xlabel("No. of Epochs") 
-  plt.ylabel("Parameter value") 
-  plt.title("Parameter Graph Analysis") 
+#   # Naming the x-axis, y-axis and the whole graph 
+#   plt.xlabel("No. of Epochs") 
+#   plt.ylabel("Parameter value") 
+#   plt.title("Parameter Graph Analysis") 
     
-  plt.legend(loc="lower right") 
+#   plt.legend(loc="lower right") 
   
-  plt.savefig("images/{}/{}/combined.jpg".format(model_name,obstacle_percentage))
-  plt.show() 
+#   plt.savefig("images/pointer/low/combined.jpg".format(model_name,obstacle_percentage))
+#   plt.show() 
 
 def main(opts):
     print(opts.model.split("/")[-1].split("_")[0])
@@ -176,7 +176,6 @@ def main(opts):
         json.dump(all_parameters_value_array, file)
 
       parameter_graph(specific_epochs, parameter_vals_array,parameter,model_name,opts.obstacle_percentage)
-    combined_parameter_graph(specific_epochs,all_parameters_value_array,parameters,model_name)
 
 if __name__ == "__main__":
     main(arguments())

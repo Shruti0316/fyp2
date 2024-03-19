@@ -94,7 +94,7 @@ def generate_instance(size, prize_type, max_length=2, num_depots=1):
     depot = torch.FloatTensor(3).uniform_(0, 1)
 
     # Initialize obstacle indices
-    num_obstacles = int(0.4 * size)
+    num_obstacles = int(0.2 * size)
     obstacle_indices = np.random.choice(size, size=num_obstacles, replace=False)
 
     energy = normalize(torch.FloatTensor(size).uniform_(1000, 5000)) #minimize #Joules
