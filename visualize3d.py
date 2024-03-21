@@ -201,9 +201,9 @@ def plot_tour(tours, inputs, problem, model_name, data_dist=''):
         # Add TOP prize to the title (if problem is TOP)
         title += ' / {:.3g} | Reward = {:.3g} / {:.3g}'.format(inputs['max_length'], reward, np.sum(prizes[prizes>0]))
     ax.set_title(title)
-    fig.savefig('images/{}/low/solution.png'.format(model_name), dpi=150)
-    # ax.legend(loc='center right', bbox_to_anchor=(1.5, 0.5))
     ax.legend()
+    fig.savefig('images/{}/low/solution_15UAV.png'.format(model_name), dpi=150)
+    # ax.legend(loc='center right', bbox_to_anchor=(1.5, 0.5))
     plt.show()
 
 
